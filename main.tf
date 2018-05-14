@@ -15,7 +15,8 @@ resource "aws_instance" "example" {
 		    sudo chkconfig httpd on
 		    cd /var/www/html
 		    sudo touch index.html
-		    sudo echo "Hello Cloudgurus!" > index.html
+		    sudo echo "Hello Cloud Management gurus! from " > index.html
+		    sudo hostname -f >> index.html
 		    EOF
 
   tags {

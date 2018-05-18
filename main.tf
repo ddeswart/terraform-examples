@@ -2,15 +2,17 @@ provider "aws" {
   region = "eu-west-2"
 }
 
+data "aws_availability_zones" "all" {}
+
 variable "server_port" {  
   description = "The port the server will use for HTTP requests"
   default = 80
 }
 
 resource "aws_launch_configuration" "example" {
-  ami                    = "ami-c12dcda6"
+  image_id               = "ami-c12dcda6"
   instance_type          = "t2.micro"
-  vpc_security_group_ids = ["${aws_security_group.instance.id}"]
+  security_groups = ["${aws_security_group.instance.id}"]
 
   user_data = <<-EOF
 		    #!/bin/bash

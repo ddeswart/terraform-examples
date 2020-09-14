@@ -5,9 +5,7 @@ provider "aws" {
 
 resource "aws_instance" "machine1" {
     ami           = "ami-0604621e15639f0b7"
-    instance_type = {
-      "type" = var.instance_type
-    }
+    instance_type = "t2.micro"
     availability_zone = "eu-central-1a"
     tags = {
       "type" = var.myTag
@@ -16,9 +14,7 @@ resource "aws_instance" "machine1" {
 
 resource "aws_instance" "machine2" {
     ami           = "ami-0604621e15639f0b7"
-    instance_type = {
-      "type" = var.instance_type
-    }
+    instance_type = "t2.micro"
     availability_zone = "eu-central-1b"
     tags = {
       "type" = var.myTag

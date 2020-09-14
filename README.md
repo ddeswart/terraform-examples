@@ -1,2 +1,2 @@
 # terraform-examples
-VMware vRA Terraform Cloud Templates
+Terraform configurations

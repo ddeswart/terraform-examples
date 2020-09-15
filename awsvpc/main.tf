@@ -18,7 +18,10 @@ module "vpc" {
 
   enable_nat_gateway = var.vpc_enable_nat_gateway
 
-  tags = var.vpc_tags
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+  }
 }
 
 module "ec2_instances" {

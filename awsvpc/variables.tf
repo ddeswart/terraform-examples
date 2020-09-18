@@ -21,9 +21,3 @@ variable "private_subnet_cidr_block" {
   type        = string
   description = "Private subnet CIDR block"
 }
-
-variable "availability_zones" {
-  default     = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
-  type        = list
-  description = "List of availability zones"
-}

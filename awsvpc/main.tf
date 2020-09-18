@@ -25,9 +25,9 @@ resource "aws_route_table" "private" {
 resource "aws_route" "private" {
   count = length(var.private_subnet_cidr_block)
 
-  route_table_id         = aws_route_table.private[count.index].id
+  route_table_id         = aws_route_table.private.id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.default[count.index].id
+  nat_gateway_id         = aws_nat_gateway.default.id
 }
 
 resource "aws_route_table" "public" {
@@ -44,30 +44,30 @@ resource "aws_subnet" "private" {
   count = length(var.private_subnet_cidr_block)
 
   vpc_id            = aws_vpc.default.id
-  cidr_block        = var.private_subnet_cidr_block[count.index]
-  availability_zone = ["${data.aws_availability_zones.all.names}"]
+  cidr_block        = var.private_subnet_cidr_block
+  availability_zone = "${data.aws_availability_zones.all.names}"
 }
 
 resource "aws_subnet" "public" {
   count = length(var.public_subnet_cidr_block)
 
   vpc_id                  = aws_vpc.default.id
-  cidr_block              = var.public_subnet_cidr_block[count.index]
-  availability_zone       = ["${data.aws_availability_zones.all.names}"]
+  cidr_block              = var.public_subnet_cidr_block
+  availability_zone       = "${data.aws_availability_zones.all.names}"
   map_public_ip_on_launch = true
 }
 
 resource "aws_route_table_association" "private" {
   count = length(var.private_subnet_cidr_block)
 
-  subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private[count.index].id
+  subnet_id      = aws_subnet.private.id
+  route_table_id = aws_route_table.private.id
 }
 
 resource "aws_route_table_association" "public" {
   count = length(var.public_subnet_cidr_block)
 
-  subnet_id      = aws_subnet.public[count.index].id
+  subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
 
@@ -84,6 +84,6 @@ resource "aws_nat_gateway" "default" {
 
   count = length(var.public_subnet_cidr_block)
 
-  allocation_id = aws_eip.nat[count.index].id
-  subnet_id     = aws_subnet.public[count.index].id
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public.id
 }

@@ -45,7 +45,7 @@ resource "aws_subnet" "private" {
 
   vpc_id            = aws_vpc.default.id
   cidr_block        = var.private_subnet_cidr_block
-  availability_zone = "${data.aws_availability_zones.all.names}"
+  availability_zone = data.aws_availability_zones.all.names
 }
 
 resource "aws_subnet" "public" {
@@ -53,22 +53,22 @@ resource "aws_subnet" "public" {
 
   vpc_id                  = aws_vpc.default.id
   cidr_block              = var.public_subnet_cidr_block
-  availability_zone       = "${data.aws_availability_zones.all.names}"
+  availability_zone       = data.aws_availability_zones.all.names
   map_public_ip_on_launch = true
 }
 
 resource "aws_route_table_association" "private" {
   count = length(var.private_subnet_cidr_block)
 
-  subnet_id      = aws_subnet.private.id
-  route_table_id = aws_route_table.private.id
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
 }
 
 resource "aws_route_table_association" "public" {
   count = length(var.public_subnet_cidr_block)
 
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public[count.index].id
 }
 
 # NAT resources: This will create 1 NAT gateways in 1 Public Subnet for 1 different Private Subnet.
@@ -80,10 +80,10 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_nat_gateway" "default" {
-  depends_on = ["aws_internet_gateway.default"]
+  depends_on = [aws_internet_gateway.default]
 
   count = length(var.public_subnet_cidr_block)
 
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public.id
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
 }

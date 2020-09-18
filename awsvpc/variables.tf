@@ -23,7 +23,7 @@ variable "private_subnet_cidr_block" {
 }
 
 variable "availability_zone" {
-  default     = "eu-central-1a"
+  default     = "eu-central-1c"
   type        = string
   description = "Availability zone"
 }

@@ -43,9 +43,9 @@ resource "aws_route" "public" {
 resource "aws_subnet" "private" {
   count = length(var.private_subnet_cidr_block)
 
-  vpc_id            = aws_vpc.default.id
-  cidr_block        = var.private_subnet_cidr_block
-  availability_zone = data.aws_availability_zones.all.names
+  vpc_id             = aws_vpc.default.id
+  cidr_block         = var.private_subnet_cidr_block
+  availability_zones = data.aws_availability_zones.all.names
 }
 
 resource "aws_subnet" "public" {
@@ -53,7 +53,7 @@ resource "aws_subnet" "public" {
 
   vpc_id                  = aws_vpc.default.id
   cidr_block              = var.public_subnet_cidr_block
-  availability_zone       = data.aws_availability_zones.all.names
+  availability_zones      = data.aws_availability_zones.all.names
   map_public_ip_on_launch = true
 }
 

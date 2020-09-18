@@ -1,37 +1,29 @@
-# Input variable definitions
-
-variable "vpc_name" {
-  description = "Name of VPC"
+variable "region" {
+  default     = "eu-central-1"
   type        = string
-  default     = "development-vpc"
+  description = "Region of the VPC"
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for VPC"
+variable "cidr_block" {
+  default     = "10.0.0.0/16"
   type        = string
-  default     = "172.10.0.0/16"
+  description = "CIDR block for the VPC"
 }
 
-variable "vpc_azs" {
-  description = "Availability zones for VPC"
-  type        = list
+variable "public_subnet_cidr_block" {
+  default     = "10.0.100.0/24"
+  type        = string
+  description = "Public subnet CIDR block"
+}
+
+variable "private_subnet_cidr_block" {
+  default     = "10.0.200.0/24"
+  type        = string
+  description = "Private subnet CIDR block"
+}
+
+variable "availability_zones" {
   default     = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
-}
-
-variable "vpc_private_subnets" {
-  description = "Private subnets for VPC"
-  type        = list(string)
-  default     = ["172.10.1.0/24", "172.10.2.0/24"]
-}
-
-variable "vpc_public_subnets" {
-  description = "Public subnets for VPC"
-  type        = list(string)
-  default     = ["172.10.10.0/24", "172.10.20.0/24"]
-}
-
-variable "vpc_enable_nat_gateway" {
-  description = "Enable NAT gateway for VPC"
-  type    = bool
-  default = true
+  type        = list
+  description = "List of availability zones"
 }

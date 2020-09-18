@@ -1,43 +1,87 @@
-# Terraform configuration
-
 provider "aws" {
-  version = "2.70.0"
-  region = "eu-central-1"
+  version = "2.69.0"
 }
 
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "2.21.0"
+# VPC resources: This will create 1 VPC with 2 Subnets, 1 Internet Gateway, 2 Route Tables. 
 
-  name = var.vpc_name
-  cidr = var.vpc_cidr
-
-  azs             = var.vpc_azs
-  private_subnets = var.vpc_private_subnets
-  public_subnets  = var.vpc_public_subnets
-
-  enable_nat_gateway = var.vpc_enable_nat_gateway
-
-  tags = {
-    Terraform   = "true"
-    Environment = "dev"
-  }
+resource "aws_vpc" "default" {
+  cidr_block           = var.cidr_block
+  enable_dns_support   = true
+  enable_dns_hostnames = true
 }
 
-module "ec2_instances" {
-  source  = "terraform-aws-modules/ec2-instance/aws"
-  version = "2.12.0"
+resource "aws_internet_gateway" "default" {
+  vpc_id = aws_vpc.default.id
+}
 
-  name           = "my-ec2-cluster"
-  instance_count = 2
+resource "aws_route_table" "private" {
+  count = length(var.private_subnet_cidr_block)
 
-  ami                    = "ami-0604621e15639f0b7"
-  instance_type          = "t2.micro"
-  vpc_security_group_ids = [module.vpc.default_security_group_id]
-  subnet_id              = module.vpc.public_subnets[0]
+  vpc_id = aws_vpc.default.id
+}
 
-  tags = {
-    Terraform   = "true"
-    Environment = "dev"
-  }
+resource "aws_route" "private" {
+  count = length(var.private_subnet_cidr_block)
+
+  route_table_id         = aws_route_table.private[count.index].id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.default[count.index].id
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.default.id
+}
+
+resource "aws_route" "public" {
+  route_table_id         = aws_route_table.public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.default.id
+}
+
+resource "aws_subnet" "private" {
+  count = length(var.private_subnet_cidr_block)
+
+  vpc_id            = aws_vpc.default.id
+  cidr_block        = var.private_subnet_cidr_block[count.index]
+  availability_zone = var.availability_zones[count.index]
+}
+
+resource "aws_subnet" "public" {
+  count = length(var.public_subnet_cidr_block)
+
+  vpc_id                  = aws_vpc.default.id
+  cidr_block              = var.public_subnet_cidr_block[count.index]
+  availability_zone       = var.availability_zones[count.index]
+  map_public_ip_on_launch = true
+}
+
+resource "aws_route_table_association" "private" {
+  count = length(var.private_subnet_cidr_block)
+
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private[count.index].id
+}
+
+resource "aws_route_table_association" "public" {
+  count = length(var.public_subnet_cidr_block)
+
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
+}
+
+# NAT resources: This will create 1 NAT gateways in 1 Public Subnet for 1 different Private Subnet.
+
+resource "aws_eip" "nat" {
+  count = length(var.public_subnet_cidr_block)
+
+  vpc = true
+}
+
+resource "aws_nat_gateway" "default" {
+  depends_on = ["aws_internet_gateway.default"]
+
+  count = length(var.public_subnet_cidr_block)
+
+  allocation_id = aws_eip.nat[count.index].id
+  subnet_id     = aws_subnet.public[count.index].id
 }

@@ -4,7 +4,7 @@ provider "aws" {
 
 # VPC resources: This will create 1 VPC with 2 Subnets, 1 Internet Gateway, 2 Route Tables.
 
-data "aws_availability_zones" "all" {}
+data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "default" {
   cidr_block           = var.cidr_block
@@ -45,14 +45,14 @@ resource "aws_subnet" "private" {
 
   vpc_id            = aws_vpc.default.id
   cidr_block        = var.private_subnet_cidr_block
-  availability_zone = var.availability_zone
+  availability_zone = element(data.aws_availability_zones.available.names, count.index)
 
 resource "aws_subnet" "public" {
   count = length(var.public_subnet_cidr_block)
 
   vpc_id                  = aws_vpc.default.id
   cidr_block              = var.public_subnet_cidr_block
-  availability_zone       = var.availability_zone
+  availability_zone       = element(data.aws_availability_zones.available.names, count.index)
   map_public_ip_on_launch = true
 }
 

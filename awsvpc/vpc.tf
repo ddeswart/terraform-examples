@@ -3,11 +3,14 @@ provider "aws" {
   region  = "eu-central-1"
 }
 resource "aws_vpc" "vpc" {
-  cidr_block = "10.0.0.0/16"
+  name = var.vpc_name
+  cidr_block = var.vpc_cidr
 }
+
 resource "aws_internet_gateway" "gateway" {
   vpc_id = aws_vpc.vpc.id
 }
+
 resource "aws_route" "route" {
   route_table_id         = aws_vpc.vpc.main_route_table_id
   destination_cidr_block = "0.0.0.0/0"

@@ -3,8 +3,11 @@ provider "aws" {
   region  = "eu-central-1"
 }
 resource "aws_vpc" "vpc" {
-  name       = var.vpc_name
-  cidr_block = var.vpc_cidr
+  cidr_block = var.cidr_block
+
+  tags = {
+    Name = "var.vpc_name"
+  }
 }
 
 resource "aws_internet_gateway" "gateway" {
